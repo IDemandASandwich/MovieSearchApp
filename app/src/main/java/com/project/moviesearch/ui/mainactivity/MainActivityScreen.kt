@@ -16,6 +16,7 @@
 
 package com.project.moviesearch.ui.mainactivity
 
+import android.util.Log
 import com.project.moviesearch.ui.theme.MyApplicationTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -27,6 +28,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -39,39 +41,36 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 @Composable
 fun MainActivityScreen(modifier: Modifier = Modifier, viewModel: MainActivityViewModel = hiltViewModel()) {
-    val items by viewModel.uiState.collectAsStateWithLifecycle()
-    if (items is MainActivityUiState.Success) {
-        MainActivityScreen(
-            items = (items as MainActivityUiState.Success).data,
-            onSave = viewModel::addMainActivity,
-            modifier = modifier
-        )
-    }
+    val movieState by viewModel.movieState.collectAsState();
+    MainActivityScreen(
+        modifier = modifier,
+        onClick = { viewModel.fetchMovieDetails(it) }
+    )
 }
 
 @Composable
 internal fun MainActivityScreen(
-    items: List<String>,
-    onSave: (name: String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onClick: (String) -> Unit
 ) {
     Column(modifier) {
-        var nameMainActivity by remember { mutableStateOf("Compose") }
+        var movieTitle by remember { mutableStateOf("") }
         Row(
             modifier = Modifier.fillMaxWidth().padding(bottom = 24.dp),
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             TextField(
-                value = nameMainActivity,
-                onValueChange = { nameMainActivity = it }
+                label = {Text("Movie title")},
+                value = movieTitle,
+                onValueChange = { movieTitle = it }
             )
 
-            Button(modifier = Modifier.width(96.dp), onClick = { onSave(nameMainActivity) }) {
-                Text("Save")
+            Button(
+                modifier = Modifier.width(96.dp),
+                onClick = { onClick(movieTitle) }
+            ) {
+                Text("Search")
             }
-        }
-        items.forEach {
-            Text("Saved item: $it")
         }
     }
 }
@@ -82,7 +81,7 @@ internal fun MainActivityScreen(
 @Composable
 private fun DefaultPreview() {
     MyApplicationTheme {
-        MainActivityScreen(listOf("Compose", "Room", "Kotlin"), onSave = {})
+        MainActivityScreen()
     }
 }
 
@@ -90,6 +89,6 @@ private fun DefaultPreview() {
 @Composable
 private fun PortraitPreview() {
     MyApplicationTheme {
-        MainActivityScreen(listOf("Compose", "Room", "Kotlin"), onSave = {})
+        MainActivityScreen()
     }
 }

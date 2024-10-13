@@ -16,6 +16,7 @@
 
 package com.project.moviesearch.ui.mainactivity
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -26,24 +27,32 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import com.project.moviesearch.data.MainActivityRepository
+import com.project.moviesearch.data.MovieResponse
+import com.project.moviesearch.data.OmdbApiService
 import com.project.moviesearch.ui.mainactivity.MainActivityUiState.Error
 import com.project.moviesearch.ui.mainactivity.MainActivityUiState.Loading
 import com.project.moviesearch.ui.mainactivity.MainActivityUiState.Success
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 
 @HiltViewModel
 class MainActivityViewModel @Inject constructor(
-    private val mainActivityRepository: MainActivityRepository
+    private val apiService: OmdbApiService
 ) : ViewModel() {
 
-    val uiState: StateFlow<MainActivityUiState> = mainActivityRepository
-        .mainActivitys.map<List<String>, MainActivityUiState>(::Success)
-        .catch { emit(Error(it)) }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), Loading)
+    private val _movieState = MutableStateFlow<MovieResponse?>(null)
+    val movieState = _movieState.asStateFlow()
 
-    fun addMainActivity(name: String) {
-        viewModelScope.launch {
-            mainActivityRepository.add(name)
+    fun fetchMovieDetails(title: String){
+        viewModelScope.launch{
+            try{
+                val response = apiService.getMovieDetails(title, "bcd53905") //TODO make a var
+                Log.d("MAIN",response.toString())
+                _movieState.value = response
+            } catch(e: Exception){
+                e.printStackTrace()
+            }
         }
     }
 }
