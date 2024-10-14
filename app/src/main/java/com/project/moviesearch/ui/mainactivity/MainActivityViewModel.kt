@@ -16,9 +16,6 @@
 
 package com.project.moviesearch.ui.mainactivity
 
-import android.net.http.HttpException
-import android.os.Build
-import androidx.annotation.RequiresExtension
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -43,14 +40,15 @@ class MainActivityViewModel @Inject constructor(
     private val _movieState = MutableStateFlow<MovieState?>(null)
     val movieState = _movieState.asStateFlow()
 
-    @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
     fun fetchMovieDetails(title: String){
         viewModelScope.launch{
             try {
                 val response = apiService.getMovieDetails(title, "bcd53905") //TODO make a var, if no internet gets stuck here
-                _movieState.value = MovieState.Success(response)
-            } catch (e: HttpException){
-                _movieState.value = MovieState.Error("HTTP Error: ${e.message}")
+                if (response.Response == "False") {
+                    _movieState.value = MovieState.Error(response.Error)
+                } else {
+                    _movieState.value = MovieState.Success(response)
+                }
             } catch (e: IOException) {
                 _movieState.value = MovieState.Error("Network error. Please check your internet connection.")
             } catch (e: Exception) {

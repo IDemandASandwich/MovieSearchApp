@@ -23,7 +23,9 @@ data class MovieResponse(
     val Director: String,
     val Actors: String,
     val Plot: String,
-    val Ratings: List<Rating>
+    val Ratings: List<Rating>,
+    val Response: String,
+    val Error: String
 )
 
 interface OmdbApiService{
