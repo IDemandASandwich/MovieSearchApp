@@ -31,20 +31,20 @@ import com.project.moviesearch.data.MainActivityRepository
  *
  * See [testing documentation](http://d.android.com/tools/testing).
  */
-@OptIn(ExperimentalCoroutinesApi::class) // TODO: Remove when stable
-class MainActivityViewModelTest {
-    @Test
-    fun uiState_initiallyLoading() = runTest {
-        val viewModel = MainActivityViewModel(FakeMainActivityRepository())
-        assertEquals(viewModel.uiState.first(), MainActivityUiState.Loading)
-    }
-
-    @Test
-    fun uiState_onItemSaved_isDisplayed() = runTest {
-        val viewModel = MainActivityViewModel(FakeMainActivityRepository())
-        assertEquals(viewModel.uiState.first(), MainActivityUiState.Loading)
-    }
-}
+//@OptIn(ExperimentalCoroutinesApi::class) // TODO: Remove when stable
+//class MainActivityViewModelTest {
+//    @Test
+//    fun uiState_initiallyLoading() = runTest {
+//        val viewModel = MainActivityViewModel(FakeMainActivityRepository())
+//        assertEquals(viewModel.uiState.first(), MainActivityUiState.Loading)
+//    }
+//
+//    @Test
+//    fun uiState_onItemSaved_isDisplayed() = runTest {
+//        val viewModel = MainActivityViewModel(FakeMainActivityRepository())
+//        assertEquals(viewModel.uiState.first(), MainActivityUiState.Loading)
+//    }
+//}
 
 private class FakeMainActivityRepository : MainActivityRepository {
 

@@ -16,49 +16,46 @@
 
 package com.project.moviesearch.ui.mainactivity
 
-import android.util.Log
+import android.net.http.HttpException
+import android.os.Build
+import androidx.annotation.RequiresExtension
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import com.project.moviesearch.data.MainActivityRepository
 import com.project.moviesearch.data.MovieResponse
 import com.project.moviesearch.data.OmdbApiService
-import com.project.moviesearch.ui.mainactivity.MainActivityUiState.Error
-import com.project.moviesearch.ui.mainactivity.MainActivityUiState.Loading
-import com.project.moviesearch.ui.mainactivity.MainActivityUiState.Success
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import java.io.IOException
 import javax.inject.Inject
+
+sealed class MovieState{
+    data class Success(val movie: MovieResponse): MovieState()
+    data class Error(val message: String): MovieState()
+}
 
 @HiltViewModel
 class MainActivityViewModel @Inject constructor(
     private val apiService: OmdbApiService
 ) : ViewModel() {
 
-    private val _movieState = MutableStateFlow<MovieResponse?>(null)
+    private val _movieState = MutableStateFlow<MovieState?>(null)
     val movieState = _movieState.asStateFlow()
 
+    @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
     fun fetchMovieDetails(title: String){
         viewModelScope.launch{
-            try{
-                val response = apiService.getMovieDetails(title, "bcd53905") //TODO make a var
-                Log.d("MAIN",response.toString())
-                _movieState.value = response
-            } catch(e: Exception){
-                e.printStackTrace()
+            try {
+                val response = apiService.getMovieDetails(title, "bcd53905") //TODO make a var, if no internet gets stuck here
+                _movieState.value = MovieState.Success(response)
+            } catch (e: HttpException){
+                _movieState.value = MovieState.Error("HTTP Error: ${e.message}")
+            } catch (e: IOException) {
+                _movieState.value = MovieState.Error("Network error. Please check your internet connection.")
+            } catch (e: Exception) {
+                _movieState.value = MovieState.Error("An unexpected error occurred.")
             }
         }
     }
-}
-
-sealed interface MainActivityUiState {
-    object Loading : MainActivityUiState
-    data class Error(val throwable: Throwable) : MainActivityUiState
-    data class Success(val data: List<String>) : MainActivityUiState
 }
