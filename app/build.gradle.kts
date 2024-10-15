@@ -44,6 +44,9 @@ android {
         ksp {
             arg("room.schemaLocation", "$projectDir/schemas")
         }
+
+        // setup so we can use local.properties to store API key
+        buildConfigField("String", "OMDB_API_KEY", "\"${project.findProperty("OMDB_API_KEY") ?: ""}\"")
     }
 
     buildTypes {
@@ -65,12 +68,12 @@ android {
     buildFeatures {
         compose = true
         aidl = false
-        buildConfig = false
+        buildConfig = true
         renderScript = false
         shaders = false
     }
 
-    packagingOptions {
+    packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }

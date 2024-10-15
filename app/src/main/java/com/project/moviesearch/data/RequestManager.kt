@@ -1,5 +1,6 @@
 package com.project.moviesearch.data
 
+import com.project.moviesearch.BuildConfig
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -11,7 +12,7 @@ import retrofit2.http.Query
 import javax.inject.Singleton
 
 // Api key
-private const val API_KEY = "your api key"
+private const val API_KEY = BuildConfig.OMDB_API_KEY
 
 data class Rating(
     val Source: String,
