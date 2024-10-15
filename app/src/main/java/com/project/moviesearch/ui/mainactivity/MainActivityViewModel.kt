@@ -16,6 +16,7 @@
 
 package com.project.moviesearch.ui.mainactivity
 
+import retrofit2.HttpException
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -43,16 +44,26 @@ class MainActivityViewModel @Inject constructor(
     fun fetchMovieDetails(title: String){
         viewModelScope.launch{
             try {
-                val response = apiService.getMovieDetails(title, "bcd53905") //TODO make a var, if no internet gets stuck here
+                val response = apiService.getMovieDetails(title)
                 if (response.Response == "False") {
                     _movieState.value = MovieState.Error(response.Error)
                 } else {
                     _movieState.value = MovieState.Success(response)
                 }
             } catch (e: IOException) {
-                _movieState.value = MovieState.Error("Network error. Please check your internet connection.")
+                _movieState.value =
+                    MovieState.Error("Network error. Please check your internet connection.")
+            } catch(e: HttpException){
+                when(e.code()){
+                    401 -> {
+                        _movieState.value = MovieState.Error("Invalid API key. Please provide a valid key.")
+                    }
+                    else -> {
+                        _movieState.value = MovieState.Error("HTTP error: ${e.code()}")
+                    }
+                }
             } catch (e: Exception) {
-                _movieState.value = MovieState.Error("An unexpected error occurred.")
+                _movieState.value = MovieState.Error("An unexpected error occurred: ${e.localizedMessage}")
             }
         }
     }

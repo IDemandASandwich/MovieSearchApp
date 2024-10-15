@@ -18,7 +18,7 @@
     <string name="app_name">MovieSearchApp</string>
     <string name="movie_title">Movie title</string>
     <string name="search">Search</string>
-    <string name="result_title">Title: %1$s</string>
+    <string name="result_title">%1$s</string>
     <string name="result_year">Year: %1$s</string>
     <string name="result_runtime">Runtime: %1$s</string>
     <string name="result_genre">Genre: %1$s</string>

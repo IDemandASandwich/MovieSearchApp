@@ -10,6 +10,9 @@ import retrofit2.http.GET
 import retrofit2.http.Query
 import javax.inject.Singleton
 
+// Api key
+private const val API_KEY = "your api key"
+
 data class Rating(
     val Source: String,
     val Value: String
@@ -32,7 +35,7 @@ interface OmdbApiService{
     @GET("/")
     suspend fun getMovieDetails(
         @Query("t") title: String,
-        @Query("apikey") apikey: String
+        @Query("apikey") apikey: String = API_KEY
     ): MovieResponse
 }
 
