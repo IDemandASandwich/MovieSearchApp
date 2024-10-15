@@ -1,3 +1,5 @@
+import java.util.Properties
+
 /*
  * Copyright (C) 2022 The Android Open Source Project
  *
@@ -46,7 +48,7 @@ android {
         }
 
         // setup so we can use local.properties to store API key
-        buildConfigField("String", "OMDB_API_KEY", "\"${project.findProperty("OMDB_API_KEY") ?: ""}\"")
+        buildConfigField("String", "OMDB_API_KEY", "\"${getOmdbApiKey()}\"")
     }
 
     buildTypes {
@@ -78,6 +80,15 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+}
+
+private fun getOmdbApiKey(): String {
+    val propertiesFile = rootProject.file("local.properties")
+    val properties = Properties()
+    propertiesFile.inputStream().use { stream ->
+        properties.load(stream)
+    }
+    return properties.getProperty("OMDB_API_KEY", "")
 }
 
 dependencies {
