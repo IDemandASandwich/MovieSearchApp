@@ -9,7 +9,7 @@ This is a Kotlin-based Android app that allows users to search for movies using 
 1. **Clone the Repository:** Clone this repository to your local machine:
 
 ```bash
-   git clone https://github.com/yourusername/moviesearchapp.git
+   git clone https://github.com/IDemandASandwich/MovieSearchApp
 ```
 
 2. **Open the Project:**
