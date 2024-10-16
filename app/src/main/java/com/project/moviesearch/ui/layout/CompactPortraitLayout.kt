@@ -15,7 +15,6 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import com.project.moviesearch.R
-import com.project.moviesearch.data.MovieResponse
 import com.project.moviesearch.ui.SearchBar
 import com.project.moviesearch.ui.mainactivity.MovieState
 
@@ -26,58 +25,53 @@ internal fun CompactPortraitLayout(
     movieState: MovieState?
 ){
     val focusManager = LocalFocusManager.current
+
     Column(
         modifier = modifier
-            .pointerInput(Unit) {
-                detectTapGestures(onTap = {
-                    focusManager.clearFocus()
-                })
-            },
+            .pointerInput(Unit) { detectTapGestures(onTap = { focusManager.clearFocus() }) },
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        SearchBar(onClick)
+        SearchBar(
+            modifier = Modifier.padding(dimensionResource(R.dimen.padding_search_bottom)),
+            onClick = onClick
+        )
 
         if(movieState is MovieState.Success){
-            MovieDetailsPortrait(movieState.movie)
+
+            val movie = movieState.movie
+            val details = listOf(
+                stringResource(R.string.result_title, movie.Title),
+                stringResource(R.string.result_year, movie.Year),
+                stringResource(R.string.result_runtime, movie.Runtime),
+                stringResource(R.string.result_genre, movie.Genre),
+                stringResource(R.string.result_actors, movie.Actors),
+                stringResource(R.string.result_plot, movie.Plot)
+            )
+
+            Column(
+                modifier = Modifier.padding(dimensionResource(R.dimen.padding_small)),
+                verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small))
+            ) {
+                details.forEach { detail ->
+                    MovieCardPortrait(title = detail, modifier = Modifier.fillMaxWidth())
+                }
+
+                Card(
+                    modifier = Modifier.fillMaxWidth()
+                ){
+                    movie.Ratings.forEach { rating ->
+                        Text(
+                            text = stringResource(R.string.result_source_rating, rating.Source, rating.Value),
+                            modifier = Modifier.padding(dimensionResource(R.dimen.padding_small))
+                        )
+                    }
+                }
+            }
+
         }
         else if(movieState is MovieState.Error){
             val errorMessage = movieState.message
             Text(stringResource(R.string.result_error, errorMessage))
-        }
-    }
-}
-
-@Composable
-internal fun MovieDetailsPortrait(movie: MovieResponse) {
-    val modifier = Modifier
-        .fillMaxWidth()
-
-    val details = listOf(
-        stringResource(R.string.result_title, movie.Title),
-        stringResource(R.string.result_year, movie.Year),
-        stringResource(R.string.result_runtime, movie.Runtime),
-        stringResource(R.string.result_genre, movie.Genre),
-        stringResource(R.string.result_actors, movie.Actors),
-        stringResource(R.string.result_plot, movie.Plot)
-    )
-
-    Column(
-        modifier = Modifier.padding(dimensionResource(R.dimen.padding_small)),
-        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small))
-    ) {
-        details.forEach { detail ->
-            MovieCardPortrait(title = detail, modifier = modifier)
-        }
-
-        Card(
-            modifier = modifier
-        ){
-            movie.Ratings.forEach { rating ->
-                Text(
-                    text = stringResource(R.string.result_source_rating, rating.Source, rating.Value),
-                    modifier = Modifier.padding(dimensionResource(R.dimen.padding_small))
-                )
-            }
         }
     }
 }

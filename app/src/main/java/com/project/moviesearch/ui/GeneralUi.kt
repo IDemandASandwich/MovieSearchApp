@@ -28,13 +28,13 @@ import com.project.moviesearch.R
 
 @Composable
 internal fun SearchBar(
+    modifier: Modifier = Modifier,
     onClick: (String) -> Unit
 ){
     var movieTitle by remember { mutableStateOf("") }
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(dimensionResource(R.dimen.padding_search_bottom)),
+        modifier = modifier
+            .fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
         TextField(
