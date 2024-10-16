@@ -16,6 +16,7 @@
 
 package com.project.moviesearch.ui.mainactivity
 
+import androidx.compose.foundation.gestures.detectTapGestures
 import com.project.moviesearch.ui.theme.MyApplicationTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -23,6 +24,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -33,6 +35,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -41,6 +44,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -50,18 +55,22 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.project.moviesearch.R
 import com.project.moviesearch.data.MovieResponse
 import com.project.moviesearch.data.Rating
+import com.project.moviesearch.ui.layout.CompactLandscapeLayout
+import com.project.moviesearch.ui.layout.CompactPortraitLayout
 
 @Composable
 fun MainActivityScreen(
     modifier: Modifier = Modifier,
-    viewModel: MainActivityViewModel = hiltViewModel()
+    viewModel: MainActivityViewModel = hiltViewModel(),
+    windowSize: WindowWidthSizeClass
 ) {
     val movieState by viewModel.movieState.collectAsState()
 
     MainActivityScreen(
         modifier = modifier,
         onClick = { viewModel.fetchMovieDetails(it) },
-        movieState = movieState
+        movieState = movieState,
+        windowSize = windowSize
     )
 }
 
@@ -69,98 +78,16 @@ fun MainActivityScreen(
 internal fun MainActivityScreen(
     modifier: Modifier = Modifier,
     onClick: (String) -> Unit,
-    movieState: MovieState?
+    movieState: MovieState?,
+    windowSize: WindowWidthSizeClass
 ) {
-    Column(
-        modifier,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        var movieTitle by remember { mutableStateOf("") }
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(dimensionResource(R.dimen.padding_search_bottom)),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            TextField(
-                label = {Text(stringResource(R.string.movie_title))},
-                value = movieTitle,
-                onValueChange = { movieTitle = it },
-                singleLine = true,
-                modifier = Modifier
-                    .weight(1f)
-                    .height(dimensionResource(R.dimen.search_height)),
-                keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Search),
-                keyboardActions = KeyboardActions(
-                    onSearch = { onClick(movieTitle) }
-                )
-            )
-
-            Button(
-                modifier = Modifier.height(dimensionResource(R.dimen.search_height)),
-                shape = RoundedCornerShape(topStart = 0.dp, bottomStart = 0.dp, topEnd = 20.dp, bottomEnd = 20.dp),
-                onClick = { onClick(movieTitle) }
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Search,
-                    contentDescription = stringResource(R.string.search)
-                )
-            }
+    when(windowSize){
+        WindowWidthSizeClass.Compact -> {
+            CompactPortraitLayout(modifier, onClick, movieState)
         }
-
-        if(movieState is MovieState.Success){
-            Column(
-                modifier = Modifier.padding(dimensionResource(R.dimen.padding_small)),
-                verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small))
-            ) {
-                MovieDetails(movieState.movie)
-            }
-
+        else -> {
+            CompactLandscapeLayout(modifier, onClick, movieState)
         }
-        else if(movieState is MovieState.Error){
-            val errorMessage = movieState.message
-            Text(stringResource(R.string.result_error, errorMessage))
-        }
-    }
-}
-
-@Composable
-fun MovieDetails(movie: MovieResponse) {
-    val modifier = Modifier
-        .fillMaxWidth()
-
-    val details = listOf(
-        stringResource(R.string.result_title, movie.Title),
-        stringResource(R.string.result_year, movie.Year),
-        stringResource(R.string.result_runtime, movie.Runtime),
-        stringResource(R.string.result_genre, movie.Genre),
-        stringResource(R.string.result_actors, movie.Actors),
-        stringResource(R.string.result_plot, movie.Plot)
-    )
-
-    details.forEach { detail ->
-        MovieCard(title = detail, modifier = modifier)
-    }
-
-    Card(
-        modifier = modifier
-    ){
-        movie.Ratings.forEach { rating ->
-            Text(
-                text = stringResource(R.string.result_source_rating, rating.Source, rating.Value),
-                modifier = Modifier.padding(dimensionResource(R.dimen.padding_small))
-            )
-        }
-    }
-}
-
-@Composable
-fun MovieCard(title: String, modifier: Modifier = Modifier) {
-    Card(modifier = modifier) {
-        Text(
-            text = title,
-            modifier = Modifier.padding(dimensionResource(R.dimen.padding_small))
-        )
     }
 }
 
@@ -196,19 +123,21 @@ private fun DefaultPreview() {
         MainActivityScreen(
             modifier = Modifier,
             onClick = {},
-            movieState = mockSuccessState
+            movieState = mockSuccessState,
+            windowSize = WindowWidthSizeClass.Compact
         )
     }
 }
 
-@Preview(showBackground = true, widthDp = 915)
+@Preview(showBackground = true, widthDp = 915, heightDp = 412, name = "Landscape preview")
 @Composable
 private fun PortraitPreview() {
     MyApplicationTheme {
         MainActivityScreen(
             modifier = Modifier,
             onClick = {},
-            movieState = mockSuccessState
+            movieState = mockSuccessState,
+            windowSize = WindowWidthSizeClass.Medium
         )
     }
 }
@@ -220,7 +149,8 @@ private fun ErrorPreview() {
         MainActivityScreen(
             modifier = Modifier,
             onClick = {},
-            movieState = mockErrorState // Provide mock error state
+            movieState = mockErrorState,
+            windowSize = WindowWidthSizeClass.Compact
         )
     }
 }

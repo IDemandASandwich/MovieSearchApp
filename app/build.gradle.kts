@@ -1,5 +1,3 @@
-import java.util.Properties
-
 /*
  * Copyright (C) 2022 The Android Open Source Project
  *
@@ -15,6 +13,8 @@ import java.util.Properties
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+import java.util.Properties
 
 @Suppress("DSL_SCOPE_VIOLATION") // Remove when fixed https://youtrack.jetbrains.com/issue/KTIJ-19369
 plugins {
@@ -148,4 +148,6 @@ dependencies {
 
     implementation(libs.coroutines.core)
     implementation(libs.coroutines.android)
+
+    implementation(libs.material3WindowSizeClass)
 }

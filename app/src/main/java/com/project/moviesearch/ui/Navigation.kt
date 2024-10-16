@@ -17,6 +17,7 @@
 package com.project.moviesearch.ui
 
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -26,11 +27,18 @@ import androidx.navigation.compose.rememberNavController
 import com.project.moviesearch.ui.mainactivity.MainActivityScreen
 
 @Composable
-fun MainNavigation() {
+fun MainNavigation(
+    windowSize: WindowSizeClass
+) {
     val navController = rememberNavController()
 
     NavHost(navController = navController, startDestination = "main") {
-        composable("main") { MainActivityScreen(modifier = Modifier.padding(16.dp)) }
+        composable("main") {
+            MainActivityScreen(
+                modifier = Modifier.padding(16.dp),
+                windowSize = windowSize.widthSizeClass
+            )
+        }
         // TODO: Add more destinations
     }
 }
